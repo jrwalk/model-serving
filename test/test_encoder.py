@@ -1,6 +1,6 @@
 import numpy as np
 import json
-from app.encoder import NumpyEncoder as Encoder
+from app import NumpyEncoder as Encoder
 
 
 _encoded_json = {
