@@ -1,3 +1,7 @@
+# model dir, avoid committing
+models/*
+!models/.gitkeep
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
