@@ -1,5 +1,4 @@
 from app.app import home, read_usage
-import pytest
 from unittest.mock import mock_open, patch
 
 

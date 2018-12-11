@@ -1,28 +1,65 @@
 import pytest
-from sklearn.pipeline import Pipeline
-from sklearn.dummy import DummyClassifier
-from sklearn_pandas import DataFrameMapper
+
 import cloudpickle as pickle
+import pandas
+
+from app import parse_model, predict
 
 
-@pytest.fixture
-def dummy_pipeline():
-    dummy_mapper = DataFrameMapper(features=[
-                                        ("X", None),
-                                        (["X", "Y"], None)
-                                   ], input_df=True, df_out=True)
-    clf = DummyClassifier(strategy='stratified', random_state=42)
-    pipe = Pipeline(memory=None,
-                    steps=[
-                        ("Mapper", dummy_mapper),
-                        ("Classifier", clf)
-                    ])
-    return pipe
-
-
+# model upload tests
 def test_pickleable_model(dummy_pipeline):
     assert pickle.loads(pickle.dumps(dummy_pipeline))
 
 
-def test_parse_model():
-    assert False
+def test_parse_model(dummy_pipeline):
+    assert parse_model(dummy_pipeline) is not None
+
+
+def test_parse_model_args(dummy_pipeline):
+    model = parse_model(dummy_pipeline)
+    assert set(model.get('args')) == {"X", "Y"}
+
+
+def test_parse_model_steps(dummy_pipeline):
+    model = parse_model(dummy_pipeline)
+    assert model.get('steps') == ["Mapper", "Classifier"]
+
+
+def test_parse_model_timestamp(patch_datetime, dummy_time, dummy_pipeline):
+    model = parse_model(dummy_pipeline)
+    assert model.get('uploaded') == dummy_time
+
+
+def test_parse_model_model(dummy_pipeline):
+    model = parse_model(dummy_pipeline)
+    assert model.get("model") == "DummyClassifier"
+
+
+# model predict stage tests
+def test_model_predict_untrained(dummy_pipeline, dummy_data):
+    df, y = dummy_data
+
+    with pytest.raises(ValueError) as e:
+        dummy_pipeline.predict(df)
+    assert "untrained" in str(e.value)
+
+
+def test_model_predict_wrong_data(dummy_pipeline_trained, dummy_data):
+    df, y = dummy_data
+    df.drop(['X'], axis=1, inplace=True)
+
+    with pytest.raises(ValueError) as e:
+        dummy_pipeline_trained.predict(df)
+    assert "missing" in str(e.value)
+
+
+def test_model_predict_single(dummy_pipeline_trained, dummy_data):
+    df, y = dummy_data
+    assert predict(dummy_pipeline_trained, df) == y[0]
+
+
+def test_model_predict_multi(dummy_pipeline_trained, dummy_data):
+    df, y = dummy_data
+    df = pandas.concat([df, df], ignore_index=True)
+    y = y * 2
+    assert predict(dummy_pipeline_trained, df) == y
