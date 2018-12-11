@@ -25,6 +25,27 @@ def dummy_pipeline():
 
 
 @pytest.fixture
+def bad_pipeline_no_mapper():
+    clf = DummyClassifier(strategy="stratified", random_state=42)
+    return Pipeline(memory=None,
+                    steps=[
+                        ("Classifier", clf)
+                    ])
+
+
+@pytest.fixture
+def bad_pipeline_no_model():
+    dummy_mapper = DataFrameMapper(features=[
+        ("X", None),
+        (["X", "Y"], None)
+    ], input_df=True, df_out=True)
+    return Pipeline(memory=None,
+                    steps=[
+                        ("Mapper", dummy_mapper)
+                    ])
+
+
+@pytest.fixture
 def dummy_data():
     df = pandas.DataFrame({"X": [1], "Y": [1]})
     y = [1]

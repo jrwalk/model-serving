@@ -35,6 +35,18 @@ def test_parse_model_model(dummy_pipeline):
     assert model.get("model") == "DummyClassifier"
 
 
+def test_parse_model_missing_mapper(bad_pipeline_no_mapper):
+    with pytest.raises(ValueError) as e:
+        parse_model(bad_pipeline_no_mapper)
+    assert "DataFrameMapper" in str(e.value)
+
+
+def test_parse_model_missing_model(bad_pipeline_no_model):
+    with pytest.raises(ValueError) as e:
+        parse_model(bad_pipeline_no_model)
+    assert "Estimator" in str(e.value)
+
+
 # model predict stage tests
 def test_model_predict_untrained(dummy_pipeline, dummy_data):
     df, y = dummy_data
