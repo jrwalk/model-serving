@@ -1,6 +1,8 @@
+import sklearn
 from sklearn_pandas import DataFrameMapper
 from sklearn.base import BaseEstimator
 from sklearn.pipeline import Pipeline
+
 import datetime as dt
 import collections
 
@@ -58,4 +60,15 @@ def parse_model(model):
 
 
 def predict(model, df):
-    pass
+    try:
+        y = model.predict(df)
+        if len(df) == 1:
+            return y[0]
+        else:
+            return list(y)
+    except KeyError as e:
+        raise KeyError("missing data: {}".format(e))
+    except TypeError:   # catches untrained models before the classifier stage
+        raise ValueError("model is untrained")
+    except ValueError:
+        raise ValueError("misformatted data passed to model")

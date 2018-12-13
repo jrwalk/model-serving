@@ -1,7 +1,6 @@
 import pytest
 
 import cloudpickle as pickle
-import pandas
 
 from app import parse_model, predict
 
@@ -32,7 +31,7 @@ def test_parse_model_timestamp(patch_datetime, dummy_time, dummy_pipeline):
 
 def test_parse_model_model(dummy_pipeline):
     model = parse_model(dummy_pipeline)
-    assert model.get("model") == "DummyClassifier"
+    assert model.get("model") == "LogisticRegression"
 
 
 def test_parse_model_no_pipeline():
@@ -54,11 +53,11 @@ def test_parse_model_missing_model(bad_pipeline_no_model):
 
 
 # model predict stage tests
-def test_model_predict_untrained(dummy_pipeline, dummy_data):
-    df, y = dummy_data
+def test_model_predict_untrained(dummy_pipeline, dummy_data_single):
+    df, y = dummy_data_single
 
     with pytest.raises(ValueError) as e:
-        dummy_pipeline.predict(df)
+        predict(dummy_pipeline, df)
     assert "untrained" in str(e.value)
 
 
@@ -66,25 +65,23 @@ def test_model_predict_missing_data(dummy_pipeline_trained, missing_data):
     df, y = missing_data
 
     with pytest.raises(KeyError) as e:
-        dummy_pipeline_trained.predict(df)
-    assert "missing" in str(e.value)
+        predict(dummy_pipeline_trained, df)
+    assert "not in index" in str(e.value)
 
 
 def test_model_predict_bad_data(dummy_pipeline_trained, bad_data):
     df, y = bad_data
 
     with pytest.raises(ValueError) as e:
-        dummy_pipeline_trained.predict(df)
+        predict(dummy_pipeline_trained, df)
     assert "misformatted" in str(e.value)
 
 
-def test_model_predict_single(dummy_pipeline_trained, dummy_data):
-    df, y = dummy_data
+def test_model_predict_single(dummy_pipeline_trained, dummy_data_single):
+    df, y = dummy_data_single
     assert predict(dummy_pipeline_trained, df) == y[0]
 
 
-def test_model_predict_multi(dummy_pipeline_trained, dummy_data):
-    df, y = dummy_data
-    df = pandas.concat([df, df], ignore_index=True)
-    y = y * 2
+def test_model_predict_multi(dummy_pipeline_trained, dummy_data_multi):
+    df, y = dummy_data_multi
     assert predict(dummy_pipeline_trained, df) == y

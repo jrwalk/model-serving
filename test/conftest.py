@@ -5,6 +5,7 @@ import pandas
 
 from sklearn.pipeline import Pipeline
 from sklearn.dummy import DummyClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn_pandas import DataFrameMapper
 
 
@@ -15,7 +16,8 @@ def dummy_pipeline():
         ("X", None),
         (["X", "Y"], None)
     ], input_df=True, df_out=True)
-    clf = DummyClassifier(strategy='stratified', random_state=42)
+    # clf = DummyClassifier(strategy='stratified', random_state=42)
+    clf = LogisticRegression()
     pipe = Pipeline(memory=None,
                     steps=[
                         ("Mapper", dummy_mapper),
@@ -46,9 +48,16 @@ def bad_pipeline_no_model():
 
 
 @pytest.fixture
-def dummy_data():
+def dummy_data_single():
     df = pandas.DataFrame({"X": [1], "Y": [1]})
     y = [1]
+    return (df, y)
+
+
+@pytest.fixture
+def dummy_data_multi():
+    df = pandas.DataFrame({"X": [1, 0], "Y": [1, 0]})
+    y = [1, 0]
     return (df, y)
 
 
@@ -67,8 +76,8 @@ def missing_data():
 
 
 @pytest.fixture
-def dummy_pipeline_trained(dummy_data, dummy_pipeline):
-    df, y = dummy_data
+def dummy_pipeline_trained(dummy_data_multi, dummy_pipeline):
+    df, y = dummy_data_multi
     dummy_pipeline.fit(df, y)
     return dummy_pipeline
 
