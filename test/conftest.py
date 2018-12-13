@@ -53,6 +53,20 @@ def dummy_data():
 
 
 @pytest.fixture
+def bad_data():
+    df = pandas.DataFrame({"X": ['a'], "Y": [None]})
+    y = [1]
+    return (df, y)
+
+
+@pytest.fixture
+def missing_data():
+    df = pandas.DataFrame({"X": [1]})
+    y = [1]
+    return (df, y)
+
+
+@pytest.fixture
 def dummy_pipeline_trained(dummy_data, dummy_pipeline):
     df, y = dummy_data
     dummy_pipeline.fit(df, y)

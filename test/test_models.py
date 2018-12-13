@@ -35,6 +35,12 @@ def test_parse_model_model(dummy_pipeline):
     assert model.get("model") == "DummyClassifier"
 
 
+def test_parse_model_no_pipeline():
+    with pytest.raises(TypeError) as e:
+        parse_model(None)
+    assert "Pipeline" in str(e.value)
+
+
 def test_parse_model_missing_mapper(bad_pipeline_no_mapper):
     with pytest.raises(ValueError) as e:
         parse_model(bad_pipeline_no_mapper)
@@ -56,13 +62,20 @@ def test_model_predict_untrained(dummy_pipeline, dummy_data):
     assert "untrained" in str(e.value)
 
 
-def test_model_predict_wrong_data(dummy_pipeline_trained, dummy_data):
-    df, y = dummy_data
-    df.drop(['X'], axis=1, inplace=True)
+def test_model_predict_missing_data(dummy_pipeline_trained, missing_data):
+    df, y = missing_data
+
+    with pytest.raises(KeyError) as e:
+        dummy_pipeline_trained.predict(df)
+    assert "missing" in str(e.value)
+
+
+def test_model_predict_bad_data(dummy_pipeline_trained, bad_data):
+    df, y = bad_data
 
     with pytest.raises(ValueError) as e:
         dummy_pipeline_trained.predict(df)
-    assert "missing" in str(e.value)
+    assert "misformatted" in str(e.value)
 
 
 def test_model_predict_single(dummy_pipeline_trained, dummy_data):
