@@ -12,12 +12,13 @@ from sklearn_pandas import DataFrameMapper
 # model pipeline fixture
 @pytest.fixture
 def dummy_pipeline():
+    """base pipeline using `sklearn.DummyClassifier`
+    """
     dummy_mapper = DataFrameMapper(features=[
         ("X", None),
         (["X", "Y"], None)
     ], input_df=True, df_out=True)
-    # clf = DummyClassifier(strategy='stratified', random_state=42)
-    clf = LogisticRegression()
+    clf = DummyClassifier(strategy='stratified', random_state=42)
     pipe = Pipeline(memory=None,
                     steps=[
                         ("Mapper", dummy_mapper),
@@ -28,6 +29,8 @@ def dummy_pipeline():
 
 @pytest.fixture
 def bad_pipeline_no_mapper():
+    """pipeline missing its `DataFrameMapper`.  Will throw an error.
+    """
     clf = DummyClassifier(strategy="stratified", random_state=42)
     return Pipeline(memory=None,
                     steps=[
@@ -37,6 +40,8 @@ def bad_pipeline_no_mapper():
 
 @pytest.fixture
 def bad_pipeline_no_model():
+    """pipeline missing its `sklearn` model.  Will throw an error.
+    """
     dummy_mapper = DataFrameMapper(features=[
         ("X", None),
         (["X", "Y"], None)
@@ -49,37 +54,68 @@ def bad_pipeline_no_model():
 
 @pytest.fixture
 def dummy_data_single():
+    """single sample data
+    """
     df = pandas.DataFrame({"X": [1], "Y": [1]})
     y = [1]
-    return (df, y)
+    y_prob = [0, 1]
+    return (df, y, y_prob)
 
 
 @pytest.fixture
 def dummy_data_multi():
+    """multi sample data
+    """
     df = pandas.DataFrame({"X": [1, 0], "Y": [1, 0]})
     y = [1, 0]
-    return (df, y)
+    y_prob = [[0, 1], [1, 0]]
+    return (df, y, y_prob)
 
 
 @pytest.fixture
 def bad_data():
-    df = pandas.DataFrame({"X": ['a'], "Y": [None]})
-    y = [1]
-    return (df, y)
+    """single sample of malformed data.  Will throw an error.
+    """
+    df = pandas.DataFrame({"X": [None], "Y": [None]})
+    return (df, None, None)
 
 
 @pytest.fixture
 def missing_data():
+    """Missing column from the data.  Will throw an error.
+    """
     df = pandas.DataFrame({"X": [1]})
-    y = [1]
-    return (df, y)
+    return (df, None, None)
 
 
 @pytest.fixture
 def dummy_pipeline_trained(dummy_data_multi, dummy_pipeline):
-    df, y = dummy_data_multi
+    """dummy pipeline with trained flag set.
+    """
+    df, y, yp = dummy_data_multi
     dummy_pipeline.fit(df, y)
     return dummy_pipeline
+
+
+@pytest.fixture
+def dummy_pipeline_logistic(dummy_data_multi):
+    """compensate for DummyClassifier not failing on bad data,
+    so we'll use a real model here
+    """
+    dummy_mapper = DataFrameMapper(features=[
+        ("X", None),
+        ("Y", None)
+    ], input_df=True, df_out=True)
+    clf = LogisticRegression()
+    pipe = Pipeline(memory=None,
+                    steps=[
+                        ("Mapper", dummy_mapper),
+                        ("Classifier", clf)
+                    ])
+
+    df, y, yp = dummy_data_multi
+    pipe.fit(df, y)
+    return pipe
 
 
 # timing fixtures
@@ -93,6 +129,8 @@ def dummy_time():
 
 @pytest.fixture
 def patch_datetime(monkeypatch):
+    """monkeypatch for check to upload time attribute.
+    """
     class mydatetime:
         @classmethod
         def utcnow(cls):

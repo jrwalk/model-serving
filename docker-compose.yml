@@ -12,13 +12,9 @@ services:
     command: /bin/bash
   test:
     <<: *box
-    image: 'model-serving:latest'
     command: "python -m pytest test/"
-    volumes:
-      - .:/model-serving
   app:
     <<: *box
     ports:
       - "5000:5000"
-    command:
-      - "python run.py"
+    command: "python run.py"

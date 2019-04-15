@@ -1,15 +1,10 @@
-import markdown
 from flask import (
     Flask,
     request,
     send_file,
-    jsonify,
-    render_template,
-    Markup
+    jsonify
 )
 
-
-from .model_utils import parse_model, build_data
 from .views import predict, get_params
 
 
@@ -43,4 +38,11 @@ def download_model():
 
 @app.route("/model/predict", methods=['POST'])
 def predict_model():
-    pass
+    input = request.get_json()
+    y, y_prob = predict(input)
+    return jsonify(
+        {
+            "predict": y,
+            "predict_proba": y_prob
+        }
+    )
