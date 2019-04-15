@@ -2,7 +2,11 @@ import pytest
 
 import cloudpickle as pickle
 
-from app import parse_model, predict
+from app.model_utils import (
+    parse_model,
+    build_data,
+    build_prediction
+)
 
 
 # model upload tests
@@ -57,7 +61,7 @@ def test_model_predict_untrained(dummy_pipeline, dummy_data_single):
     df, y = dummy_data_single
 
     with pytest.raises(ValueError) as e:
-        predict(dummy_pipeline, df)
+        build_prediction(dummy_pipeline, df)
     assert "untrained" in str(e.value)
 
 
@@ -65,7 +69,7 @@ def test_model_predict_missing_data(dummy_pipeline_trained, missing_data):
     df, y = missing_data
 
     with pytest.raises(KeyError) as e:
-        predict(dummy_pipeline_trained, df)
+        build_prediction(dummy_pipeline_trained, df)
     assert "not in index" in str(e.value)
 
 
@@ -73,15 +77,15 @@ def test_model_predict_bad_data(dummy_pipeline_trained, bad_data):
     df, y = bad_data
 
     with pytest.raises(ValueError) as e:
-        predict(dummy_pipeline_trained, df)
+        build_prediction(dummy_pipeline_trained, df)
     assert "misformatted" in str(e.value)
 
 
 def test_model_predict_single(dummy_pipeline_trained, dummy_data_single):
     df, y = dummy_data_single
-    assert predict(dummy_pipeline_trained, df) == y[0]
+    assert build_prediction(dummy_pipeline_trained, df) == y[0]
 
 
 def test_model_predict_multi(dummy_pipeline_trained, dummy_data_multi):
     df, y = dummy_data_multi
-    assert predict(dummy_pipeline_trained, df) == y
+    assert build_prediction(dummy_pipeline_trained, df) == y

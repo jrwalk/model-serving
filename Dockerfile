@@ -4,5 +4,3 @@ WORKDIR /model-serving
 COPY . /model-serving
 
 RUN pip install -r requirements.txt
-
-ENTRYPOINT ["/bin/bash"]

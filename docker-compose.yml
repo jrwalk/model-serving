@@ -1,21 +1,24 @@
 version: '3.4'
 services:
-  build: &build
+  box: &box
     image: 'model-serving:latest'
-    build: .
+    build:
+      dockerfile: ./Dockerfile
+      context: .
     volumes:
       - .:/model-serving
     environment:
       - FLASK_ENV='development'
+    command: /bin/bash
+  test:
+    <<: *box
+    image: 'model-serving:latest'
+    command: "python -m pytest test/"
+    volumes:
+      - .:/model-serving
   app:
-    <<: *build
+    <<: *box
     ports:
       - "5000:5000"
-    entrypoint:
-      - "python"
     command:
-      - "run.py"
-  test:
-    <<: *build
-    command:
-      - "python -m pytest test/"
+      - "python run.py"

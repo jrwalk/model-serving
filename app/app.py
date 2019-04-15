@@ -1,4 +1,16 @@
-from flask import Flask, request
+import markdown
+from flask import (
+    Flask,
+    request,
+    send_file,
+    jsonify,
+    render_template,
+    Markup
+)
+
+
+from .model_utils import parse_model, build_data
+from .views import predict, get_params
 
 
 # configuration and instantiation
@@ -19,16 +31,16 @@ def read_usage():
         return rf.read()
 
 
-@app.route("/models")
-def get_models():
-    pass
+@app.route('/model', methods=['GET'])
+def get_model():
+    return jsonify(get_params())
 
 
-@app.route("/models/<model_id>")
-def get_model(model_id):
-    pass
+@app.route("/model/download", methods=['GET'])
+def download_model():
+    return send_file("/model-serving/binary/pipeline.pkl")
 
 
-@app.route("/models/<model_id>/predict")
-def predict_model(model_id):
+@app.route("/model/predict", methods=['POST'])
+def predict_model():
     pass

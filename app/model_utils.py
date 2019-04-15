@@ -1,4 +1,4 @@
-import sklearn
+import pandas
 from sklearn_pandas import DataFrameMapper
 from sklearn.base import BaseEstimator
 from sklearn.pipeline import Pipeline
@@ -16,8 +16,14 @@ def flatten(l):
             yield el
 
 
+def build_data(input):
+    """build `pandas.DataFrame` from input JSON.
+    """
+    return pandas.DataFrame.from_dict(input, orient='columns')
+
+
 def parse_model(model):
-    """m
+    """
     """
     try:
         assert isinstance(model, Pipeline)
@@ -59,7 +65,9 @@ def parse_model(model):
     }
 
 
-def predict(model, df):
+def build_prediction(model, df):
+    """
+    """
     try:
         y = model.predict(df)
         if len(df) == 1:
