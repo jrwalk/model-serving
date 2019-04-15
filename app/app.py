@@ -1,4 +1,5 @@
-from flask import Flask
+from flask import Flask, request
+
 
 # configuration and instantiation
 app = Flask(__name__)
@@ -16,3 +17,18 @@ def home():
 def read_usage():
     with open("README.md", "r") as rf:
         return rf.read()
+
+
+@app.route("/models")
+def get_models():
+    pass
+
+
+@app.route("/models/<model_id>")
+def get_model(model_id):
+    pass
+
+
+@app.route("/models/<model_id>/predict")
+def predict_model(model_id):
+    pass

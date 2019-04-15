@@ -1,0 +1,21 @@
+version: '3.4'
+services:
+  build: &build
+    image: 'model-serving:latest'
+    build: .
+    volumes:
+      - .:/model-serving
+    environment:
+      - FLASK_ENV='development'
+  app:
+    <<: *build
+    ports:
+      - "5000:5000"
+    entrypoint:
+      - "python"
+    command:
+      - "run.py"
+  test:
+    <<: *build
+    command:
+      - "python -m pytest test/"
