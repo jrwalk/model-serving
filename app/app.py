@@ -38,7 +38,7 @@ def download_model():
 
 @app.route("/model/predict", methods=['POST'])
 def predict_model():
-    input = request.get_json()
+    input = request.get_json()['data']
     y, y_prob = predict(input)
     return jsonify(
         {
