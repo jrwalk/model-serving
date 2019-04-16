@@ -1,7 +1,7 @@
 version: '3.4'
 services:
   box: &box
-    image: 'model-serving:latest'
+    image: 'model-serving:0.1'
     build:
       dockerfile: ./Dockerfile
       context: .
