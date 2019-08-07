@@ -3,10 +3,20 @@ import pytest
 import datetime
 import pandas
 
+from app.app import app
+
 from sklearn.pipeline import Pipeline
 from sklearn.dummy import DummyClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn_pandas import DataFrameMapper
+
+
+@pytest.fixture
+def client():
+    context = app.app_context()
+    context.push()
+    yield app.test_client()
+    context.pop()
 
 
 # model pipeline fixture
