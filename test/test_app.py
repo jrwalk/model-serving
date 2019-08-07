@@ -1,4 +1,3 @@
-from app.app import read_usage
 from unittest.mock import mock_open, patch
 
 
